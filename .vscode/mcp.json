@@ -1,0 +1,10 @@
+{
+  "servers": {
+    "demo-mcp-server": {
+      "url": "http://localhost:9000/mcp"
+    },
+    "microsoft.docs.mcp": {
+      "url": "https://learn.microsoft.com/api/mcp"
+    }
+  }
+}

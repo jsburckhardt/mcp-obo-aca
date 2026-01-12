@@ -1,0 +1,192 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+# =============================================================================
+# Demo MCP Server - Azure Developer CLI Configuration
+# =============================================================================
+# This file configures the Azure Developer CLI (azd) for deploying the
+# Demo MCP Server to Azure Container Apps.
+#
+# Prerequisites:
+#   - Azure CLI installed and logged in
+#   - Azure Developer CLI (azd) installed
+#   - Docker installed (for local builds)
+#
+# Quick Start:
+#   azd init
+#   azd up
+# =============================================================================
+
+name: demo-mcp-server
+
+requiredVersions:
+  azd: ">=1.15.0"
+
+metadata:
+  template: demo-mcp-server@0.1.0
+
+infra:
+  provider: bicep
+  path: ./infra
+  module: main
+
+# =============================================================================
+# Services
+# =============================================================================
+services:
+  demo-mcp-server:
+    project: ./src
+    language: py
+    host: containerapp
+    docker:
+      path: ./src/Dockerfile
+      context: ./src
+      remoteBuild: true
+
+# =============================================================================
+# Hooks
+# =============================================================================
+hooks:
+  # Pre-provision: Validate required environment variables
+  preprovision:
+    posix:
+      run: |
+        echo "🔍 Validating required environment variables..."
+        
+        if [ -z "$AZURE_CLIENT_ID" ]; then
+          echo "⚠️  Warning: AZURE_CLIENT_ID not set. You will need to configure it for authentication."
+          echo "   See docs/02-azure-setup.md for Azure AD app registration instructions."
+        else
+          echo "✅ AZURE_CLIENT_ID is set"
+        fi
+        
+        echo ""
+        echo "📝 Note: After deployment, you need to configure a federated credential"
+        echo "   on your Azure AD app registration using the managed identity principal ID."
+        echo "   This will be output after deployment."
+      shell: sh
+    windows:
+      run: |
+        Write-Host "🔍 Validating required environment variables..."
+        
+        if (-not $env:AZURE_CLIENT_ID) {
+          Write-Host "⚠️  Warning: AZURE_CLIENT_ID not set. You will need to configure it for authentication."
+          Write-Host "   See docs/02-azure-setup.md for Azure AD app registration instructions."
+        } else {
+          Write-Host "✅ AZURE_CLIENT_ID is set"
+        }
+        
+        Write-Host ""
+        Write-Host "📝 Note: After deployment, you need to configure a federated credential"
+        Write-Host "   on your Azure AD app registration using the managed identity principal ID."
+        Write-Host "   This will be output after deployment."
+      shell: pwsh
+
+  # Post-provision: Display helpful information
+  postprovision:
+    posix:
+      run: |
+        Blue='\033[0;34m'
+        Green='\033[0;32m'
+        Yellow='\033[1;33m'
+        Cyan='\033[0;36m'
+        NC='\033[0m'
+        
+        echo ""
+        echo "${Yellow}═══════════════════════════════════════════════════════════════${NC}"
+        echo "${Green}✅ Infrastructure Provisioned Successfully${NC}"
+        echo "${Yellow}═══════════════════════════════════════════════════════════════${NC}"
+        echo ""
+        echo "${Cyan}📋 Next Steps:${NC}"
+        echo ""
+        echo "1. ${Blue}Configure Federated Credential${NC}"
+        echo "   Use the Managed Identity Principal ID output above to create a"
+        echo "   federated credential on your Azure AD app registration."
+        echo "   See: docs/02-azure-setup.md#step-4-configure-federated-identity"
+        echo ""
+        echo "2. ${Blue}Build and Deploy${NC}"
+        echo "   Run: azd deploy"
+        echo ""
+        echo "3. ${Blue}Test the MCP Server${NC}"
+        echo "   curl https://<your-app-fqdn>/health"
+        echo "   curl https://<your-app-fqdn>/.well-known/oauth-protected-resource"
+        echo ""
+      shell: sh
+      interactive: true
+    windows:
+      run: |
+        Write-Host ""
+        Write-Host "═══════════════════════════════════════════════════════════════" -ForegroundColor Yellow
+        Write-Host "✅ Infrastructure Provisioned Successfully" -ForegroundColor Green
+        Write-Host "═══════════════════════════════════════════════════════════════" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "📋 Next Steps:" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "1. Configure Federated Credential" -ForegroundColor Blue
+        Write-Host "   Use the Managed Identity Principal ID output above to create a"
+        Write-Host "   federated credential on your Azure AD app registration."
+        Write-Host "   See: docs/02-azure-setup.md#step-4-configure-federated-identity"
+        Write-Host ""
+        Write-Host "2. Build and Deploy" -ForegroundColor Blue
+        Write-Host "   Run: azd deploy"
+        Write-Host ""
+        Write-Host "3. Test the MCP Server" -ForegroundColor Blue
+        Write-Host "   curl https://<your-app-fqdn>/health"
+        Write-Host "   curl https://<your-app-fqdn>/.well-known/oauth-protected-resource"
+        Write-Host ""
+      shell: pwsh
+      interactive: true
+
+  # Post-deploy: Display service URLs
+  postdeploy:
+    posix:
+      run: |
+        Blue='\033[0;34m'
+        Green='\033[0;32m'
+        Yellow='\033[1;33m'
+        Cyan='\033[0;36m'
+        NC='\033[0m'
+        
+        echo ""
+        echo "${Yellow}═══════════════════════════════════════════════════════════════${NC}"
+        echo "${Green}🚀 Demo MCP Server Deployed Successfully${NC}"
+        echo "${Yellow}═══════════════════════════════════════════════════════════════${NC}"
+        echo ""
+        echo "${Cyan}📍 Endpoints:${NC}"
+        echo ""
+        echo "   ${Blue}MCP Endpoint:${NC}     https://${SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL}/mcp"
+        echo "   ${Blue}Health Check:${NC}     https://${SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL}/health"
+        echo "   ${Blue}OAuth Metadata:${NC}   https://${SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL}/.well-known/oauth-protected-resource"
+        echo ""
+        echo "${Cyan}🧪 Test Commands:${NC}"
+        echo ""
+        echo "   # Health check"
+        echo "   curl https://${SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL}/health"
+        echo ""
+        echo "   # OAuth metadata"
+        echo "   curl https://${SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL}/.well-known/oauth-protected-resource"
+        echo ""
+      shell: sh
+      interactive: true
+    windows:
+      run: |
+        Write-Host ""
+        Write-Host "═══════════════════════════════════════════════════════════════" -ForegroundColor Yellow
+        Write-Host "🚀 Demo MCP Server Deployed Successfully" -ForegroundColor Green
+        Write-Host "═══════════════════════════════════════════════════════════════" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "📍 Endpoints:" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "   MCP Endpoint:     https://$env:SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL/mcp" -ForegroundColor Blue
+        Write-Host "   Health Check:     https://$env:SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL/health" -ForegroundColor Blue
+        Write-Host "   OAuth Metadata:   https://$env:SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL/.well-known/oauth-protected-resource" -ForegroundColor Blue
+        Write-Host ""
+        Write-Host "🧪 Test Commands:" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "   # Health check"
+        Write-Host "   curl https://$env:SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL/health"
+        Write-Host ""
+        Write-Host "   # OAuth metadata"
+        Write-Host "   curl https://$env:SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL/.well-known/oauth-protected-resource"
+        Write-Host ""
+      shell: pwsh
+      interactive: true

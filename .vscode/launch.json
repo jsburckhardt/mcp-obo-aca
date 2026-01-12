@@ -1,0 +1,33 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug MCP Server",
+            "type": "debugpy",
+            "request": "launch",
+            "python": "/home/vscode/.venv/bin/python",
+            "program": "${workspaceFolder}/src/server.py",
+            "cwd": "${workspaceFolder}/src",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/src/.env",
+            "justMyCode": false
+        },
+        {
+            "name": "Debug MCP Server - no auth",
+            "type": "debugpy",
+            "request": "launch",
+            "python": "/home/vscode/.venv/bin/python",
+            "program": "${workspaceFolder}/src/server.py",
+            "cwd": "${workspaceFolder}/src",
+            "console": "integratedTerminal",
+            "env": {
+                "ENABLE_AUTH": "false"
+            },
+            "args": [
+                "--debug",
+                "--no-auth"
+            ],
+            "justMyCode": false
+        }
+    ]
+}
