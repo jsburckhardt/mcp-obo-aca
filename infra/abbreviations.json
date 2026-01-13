@@ -1,0 +1,11 @@
+{
+  "appContainerApp": "ca-",
+  "appContainerAppsEnvironment": "cae-",
+  "containerRegistry": "cr",
+  "logAnalyticsWorkspace": "log-",
+  "userAssignedIdentity": "id-",
+  "keyVault": "kv-",
+  "storageAccount": "st",
+  "appInsights": "appi-",
+  "resourceGroup": "rg-"
+}
