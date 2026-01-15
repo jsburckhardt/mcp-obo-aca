@@ -206,6 +206,112 @@ After several iterations, we delivered a production-ready MCP server that met al
 
 5. **Handle scope extraction carefully**: Azure AD tokens may have scopes in `scp` (space-separated string) or `roles` (array)—handle both.
 
+## Common Pitfalls & Things to Watch For
+
+During our implementation and deployment, we encountered several configuration issues that caused authentication failures. Here's what to watch for:
+
+### 1. Client ID vs Tenant ID Confusion
+
+**The Problem**: Azure AD requires multiple GUIDs (Tenant ID, Client ID, Object ID), and it's easy to mix them up. We accidentally used the Tenant ID where the Client ID was expected, causing all API scope URIs to be wrong.
+
+**What Goes Wrong**: The OAuth metadata returns scopes like `api://{tenant-id}/access_as_user` instead of `api://{client-id}/access_as_user`. Clients then request the wrong scopes, and Azure AD rejects the token request.
+
+**How to Check**: Verify your `/.well-known/oauth-protected-resource` endpoint returns scopes with your **Application (Client) ID**, not your Tenant ID:
+
+```bash
+curl https://your-server/.well-known/oauth-protected-resource | jq .scopes_supported
+# Should show: "api://YOUR-CLIENT-ID/access_as_user"
+# NOT: "api://YOUR-TENANT-ID/access_as_user"
+```
+
+**The Fix**: Double-check your environment variables:
+- `TENANT_ID`: Your Azure AD directory ID (e.g., `16b3c013-d300-...`)
+- `CLIENT_ID`: Your App Registration's Application ID (e.g., `58348f96-645d-...`)
+
+These are different values! Find them in the Azure Portal under **App Registrations > Your App > Overview**.
+
+### 2. Resource Server URL Showing Localhost in Production
+
+**The Problem**: The OAuth Protected Resource Metadata returns `"resource": "http://localhost:9000"` even when deployed to the cloud. This happens because the server doesn't know its external URL.
+
+**What Goes Wrong**: MCP clients use this `resource` field to identify which token to use. If it shows `localhost` but you're accessing `https://your-cloud-app.azurecontainerapps.io`, the client may fail to match tokens correctly.
+
+**How to Check**:
+```bash
+curl https://your-cloud-server/.well-known/oauth-protected-resource | jq .resource
+# Should show: "https://your-cloud-server"
+# NOT: "http://localhost:9000"
+```
+
+**The Fix**: Set the `RESOURCE_SERVER_URL` environment variable to your cloud URL:
+```bash
+# For Azure Container Apps with azd
+azd env set RESOURCE_SERVER_URL "https://your-app.azurecontainerapps.io"
+azd provision
+```
+
+Note: This requires a two-phase deployment—first deploy to get the URL, then set the variable and redeploy.
+
+### 3. Pre-authorized Client Applications
+
+**The Problem**: When using VS Code or other MCP clients, the OAuth flow may prompt users to enter a Client ID, rather than using a known client automatically.
+
+**What Goes Wrong**: Your App Registration doesn't have the client application pre-authorized, so Azure AD treats it as an unknown third-party app.
+
+**The Fix**: In Azure Portal, go to **App Registrations > Your App > Expose an API > Add a client application**. Add the client IDs for known MCP clients:
+- VS Code: Check the MCP extension documentation for its Client ID
+- Add your own client applications as needed
+
+### 4. Caching Causing Stale Responses
+
+**The Problem**: After fixing configuration issues and redeploying, the OAuth metadata endpoints still return old values.
+
+**What Goes Wrong**: Azure Container Apps (and CDNs) may cache responses. Our endpoints return `Cache-Control: public, max-age=3600`, which is good for production but frustrating during debugging.
+
+**How to Check**: Use cache-busting headers:
+```bash
+curl -H "Cache-Control: no-cache" -H "Pragma: no-cache" \
+  https://your-server/.well-known/oauth-protected-resource | jq .
+```
+
+**The Fix**: Wait for cache expiry, or force a new container revision deployment. In Azure Container Apps:
+```bash
+az containerapp revision list --name your-app --resource-group your-rg
+# Check if latest revision is running
+```
+
+### 5. Federated Credential Configuration
+
+**The Problem**: Secretless OBO flow fails with "Invalid client assertion" or similar errors.
+
+**What Goes Wrong**: The federated credential linking your Managed Identity to your App Registration is misconfigured.
+
+**The Fix**: Ensure the federated credential is set up correctly:
+1. Get your Managed Identity's Principal ID from the deployment output
+2. In Azure Portal, go to **App Registrations > Your App > Certificates & secrets > Federated credentials**
+3. Add a credential with:
+   - **Issuer**: `https://login.microsoftonline.com/{tenant-id}/v2.0`
+   - **Subject Identifier**: The Managed Identity's Principal ID
+   - **Audience**: `api://AzureADTokenExchange`
+
+### Quick Validation Checklist
+
+Before going live, verify these endpoints return correct values:
+
+```bash
+# 1. Check resource URL matches your deployment
+curl https://your-server/.well-known/oauth-protected-resource | jq '.resource'
+
+# 2. Check scopes use your Client ID (not Tenant ID)
+curl https://your-server/.well-known/oauth-protected-resource | jq '.scopes_supported[0]'
+
+# 3. Check authorization server points to your tenant
+curl https://your-server/.well-known/oauth-protected-resource | jq '.authorization_servers[0]'
+
+# 4. Health check works
+curl https://your-server/health
+```
+
 ## Conclusion
 
 Building a secure MCP server in a rapidly evolving specification landscape was challenging, but the resulting implementation follows best practices that should remain stable. The key insight is that MCP authentication is fundamentally OAuth 2.1 with Protected Resource Metadata—once you understand that, the pieces fall into place.
