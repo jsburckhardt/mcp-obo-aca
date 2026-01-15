@@ -1,0 +1,8 @@
+# Demo MCP Server - Core Dependencies
+# Pinned versions for reproducibility
+-r requirements.txt
+
+# Development dependencies (optional)
+pytest==8.3.4
+pytest-asyncio==0.24.0
+cryptography>=41.0.0

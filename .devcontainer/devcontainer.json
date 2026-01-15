@@ -2,8 +2,9 @@
     "name": "mcp-obo-aca",
     "image": "mcr.microsoft.com/devcontainers/python:3.11-bullseye",
     "runArgs": [
-        "--network=host"
+        "-p","0.0.0.0:12346:12346"
     ],
+    "forwardPorts": [12346],
     "features": {
         "ghcr.io/devcontainers/features/common-utils:2": {
             "configureZshAsDefaultShell": true,
