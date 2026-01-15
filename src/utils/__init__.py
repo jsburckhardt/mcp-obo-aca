@@ -3,14 +3,14 @@ Utilities module for the Demo MCP Server.
 """
 
 from .auth_utils import (
+    get_bearer_token,
     get_user_id_from_context,
     get_user_id_safe,
-    get_bearer_token,
 )
-from .date_utils import get_current_timestamp, format_date_for_user
+from .date_utils import format_date_for_user, get_current_timestamp
 from .formatters import (
-    format_mcp_response,
     format_error_response,
+    format_mcp_response,
     format_success_response,
 )
 

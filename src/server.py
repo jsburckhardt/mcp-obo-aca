@@ -22,22 +22,23 @@ import argparse
 import logging
 from typing import Any, Optional, cast
 
-from auth.verifier import EntraIdTokenVerifier
-from config.settings import (
-    MCPServerConfig,
-    get_mcp_config,
-    get_authorization_server_url,
-    get_resource_server_url,
-)
-from core.exceptions import ConfigurationError, DependencyError, AuthSetupError
-from core.factory import MCPToolBase, MCPToolFactory
 from fastmcp import FastMCP
 from fastmcp.server.auth import RemoteAuthProvider
 from fastmcp.server.server import Transport
 from pydantic import AnyHttpUrl
-from services.general_service import GeneralService
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+
+from auth.verifier import EntraIdTokenVerifier
+from config.settings import (
+    MCPServerConfig,
+    get_authorization_server_url,
+    get_mcp_config,
+    get_resource_server_url,
+)
+from core.exceptions import AuthSetupError, ConfigurationError, DependencyError
+from core.factory import MCPToolBase, MCPToolFactory
+from services.general_service import GeneralService
 
 # Setup logging - will be reconfigured based on config
 logging.basicConfig(level=logging.INFO)
@@ -408,9 +409,9 @@ def create_auth_provider(config: MCPServerConfig) -> Optional[RemoteAuthProvider
 
         auth = RemoteAuthProvider(
             token_verifier=token_verifier,
-            authorization_servers=[AnyHttpUrl(auth_server_url)]
-            if auth_server_url
-            else [],
+            authorization_servers=(
+                [AnyHttpUrl(auth_server_url)] if auth_server_url else []
+            ),
             base_url=resource_url,
             resource_name="Demo MCP Server",
         )

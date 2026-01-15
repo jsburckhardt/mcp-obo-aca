@@ -10,13 +10,11 @@ Tests validate:
 
 import importlib
 import sys
-import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import aiohttp
-import jwt
 import pytest
 
 # Add demo MCP server to path

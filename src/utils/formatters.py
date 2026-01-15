@@ -2,7 +2,7 @@
 Response formatting utilities for MCP tools.
 """
 
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 
 def format_mcp_response(
