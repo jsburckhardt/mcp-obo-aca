@@ -46,6 +46,9 @@ param enableAuth bool = true
 @description('The port the container listens on')
 param containerPort int = 9000
 
+@description('The canonical resource server URL (set after first deployment with the Container App FQDN)')
+param resourceServerUrl string = ''
+
 @description('Minimum number of replicas')
 param minReplicas int = 0
 
@@ -122,7 +125,7 @@ module containerApp './modules/container-app.bicep' = {
   params: {
     name: containerAppName
     location: location
-    tags: tags
+    tags: union(tags, { 'azd-service-name': 'demo-mcp-server' })
     containerAppsEnvironmentId: containerAppsEnvironment.outputs.id
     containerRegistryLoginServer: containerRegistry.outputs.loginServer
     containerImageName: containerImageName
@@ -185,6 +188,10 @@ module containerApp './modules/container-app.bicep' = {
         name: 'DEBUG'
         value: 'false'
       }
+      {
+        name: 'RESOURCE_SERVER_URL'
+        value: resourceServerUrl
+      }
     ]
     // Only add client secret if provided (for local dev scenarios)
     secretEnvVars: !empty(clientSecret) ? [
@@ -206,6 +213,9 @@ output containerRegistryName string = containerRegistry.outputs.name
 
 @description('The login server of the Container Registry')
 output containerRegistryLoginServer string = containerRegistry.outputs.loginServer
+
+@description('The Azure Container Registry endpoint (used by azd for deployment)')
+output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerRegistry.outputs.loginServer
 
 @description('The name of the Container App')
 output containerAppName string = containerApp.outputs.name
