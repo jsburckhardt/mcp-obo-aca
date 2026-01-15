@@ -38,8 +38,8 @@ services:
     language: py
     host: containerapp
     docker:
-      path: ./src/Dockerfile
-      context: ./src
+      path: ./Dockerfile
+      context: .
       remoteBuild: true
 
 # =============================================================================
