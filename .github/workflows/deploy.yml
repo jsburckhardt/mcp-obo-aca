@@ -1,0 +1,71 @@
+# =============================================================================
+# Deploy Pipeline - Demo MCP Server
+# =============================================================================
+# This workflow deploys to Azure Container Apps using Azure Developer CLI (azd).
+# It triggers automatically after the CI workflow succeeds on the main branch.
+#
+# Prerequisites:
+#   - Configure GitHub repository variables (see docs/06-cicd.md)
+#   - Set up Azure AD federated credential for OIDC authentication
+# =============================================================================
+
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches:
+      - main
+
+# Required for Azure OIDC authentication
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to Azure Container Apps
+    runs-on: ubuntu-latest
+    # Only run if CI workflow succeeded
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Azure Developer CLI
+        uses: Azure/setup-azd@v1.0.0
+
+      - name: Log in with Azure (Federated Credentials)
+        if: ${{ env.AZURE_CLIENT_ID != '' }}
+        run: |
+          azd auth login \
+            --client-id "$AZURE_CLIENT_ID" \
+            --federated-credential-provider "github" \
+            --tenant-id "$AZURE_TENANT_ID"
+
+      - name: Provision Infrastructure
+        run: azd provision --no-prompt
+
+      - name: Deploy Application
+        run: azd deploy --no-prompt
+
+      - name: Display Deployment Info
+        run: |
+          echo "=========================================="
+          echo "Deployment completed successfully!"
+          echo "=========================================="
+          echo ""
+          echo "Environment: $AZURE_ENV_NAME"
+          echo "Location: $AZURE_LOCATION"
+          echo ""
+          echo "Run 'azd show' locally to see deployed resources."

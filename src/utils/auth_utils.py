@@ -31,6 +31,8 @@ def get_user_id_from_context(ctx: Context) -> str:
     try:
         # Extract token from Authorization header
         request = ctx.request_context.request
+        if request is None:
+            raise ValueError("No request found in context")
         authorization_header = request.headers.get("Authorization")
 
         if not authorization_header:
@@ -103,6 +105,8 @@ def get_bearer_token(ctx: Context) -> str:
         ValueError: If Authorization header is missing or malformed
     """
     request = ctx.request_context.request
+    if request is None:
+        raise ValueError("No request found in context")
     auth_header = request.headers.get("Authorization")
 
     if not auth_header:
