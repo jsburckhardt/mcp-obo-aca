@@ -20,6 +20,9 @@
     "enableAuth": {
       "value": "${ENABLE_AUTH=true}"
     },
+    "resourceServerUrl": {
+      "value": "${RESOURCE_SERVER_URL=}"
+    },
     "tags": {
       "value": {
         "azd-env-name": "${AZURE_ENV_NAME}",
