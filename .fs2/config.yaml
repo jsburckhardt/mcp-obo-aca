@@ -1,6 +1,9 @@
 # fs2 configuration file
 # See docs/how/scanning.md for all options
 
+graph:
+  graph_file: .fs2/graph.pickle
+
 scan:
   # Directories to scan (relative to project root)
   scan_paths:
