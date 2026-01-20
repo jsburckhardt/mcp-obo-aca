@@ -9,7 +9,6 @@ These tests validate the complete authentication flow including:
 
 import sys
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
@@ -24,6 +23,7 @@ class TestServerCreation:
     def test_create_server_without_auth(self, mock_env_auth_disabled):
         """Verify server can be created with auth disabled."""
         import importlib
+
         import config.settings
 
         importlib.reload(config.settings)
@@ -37,6 +37,7 @@ class TestServerCreation:
     def test_create_factory(self, mock_env_auth_disabled):
         """Verify factory can be created with default services."""
         import importlib
+
         import config.settings
 
         importlib.reload(config.settings)
@@ -57,6 +58,7 @@ class TestOAuthMetadataBuilders:
     def test_build_api_scopes_with_client_id(self, mock_env_auth_disabled):
         """Verify API scopes are built correctly."""
         import importlib
+
         import config.settings
 
         importlib.reload(config.settings)
@@ -72,6 +74,7 @@ class TestOAuthMetadataBuilders:
     def test_build_api_scopes_without_client_id(self, mock_env_auth_disabled):
         """Verify empty list when no client ID."""
         import importlib
+
         import config.settings
 
         importlib.reload(config.settings)
@@ -84,6 +87,7 @@ class TestOAuthMetadataBuilders:
     def test_build_protected_resource_metadata(self, mock_env_full_auth):
         """Verify protected resource metadata is built correctly."""
         import importlib
+
         import config.settings
 
         importlib.reload(config.settings)
@@ -104,6 +108,7 @@ class TestConfigValidation:
     def test_validate_auth_config_disabled(self, mock_env_auth_disabled):
         """Verify validation passes when auth is disabled."""
         import importlib
+
         import config.settings
 
         importlib.reload(config.settings)
@@ -117,6 +122,7 @@ class TestConfigValidation:
     def test_validate_auth_config_missing_required(self, mock_env_missing_secret):
         """Verify validation fails when auth enabled but missing config."""
         import importlib
+
         import config.settings
 
         importlib.reload(config.settings)
@@ -139,6 +145,7 @@ class TestResourceServerURL:
     def test_get_resource_server_url_default(self, mock_env_auth_disabled):
         """Verify default resource server URL is constructed."""
         import importlib
+
         import config.settings
 
         importlib.reload(config.settings)
@@ -153,6 +160,7 @@ class TestResourceServerURL:
     def test_get_authorization_server_url_from_tenant(self, mock_env_full_auth):
         """Verify authorization server URL is constructed from tenant."""
         import importlib
+
         import config.settings
 
         importlib.reload(config.settings)

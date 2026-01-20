@@ -111,7 +111,7 @@ class EntraIdTokenVerifier(TokenVerifier):
                     # Cache for 1 hour
                     self._cache_expiry = now + timedelta(hours=1)
                     logger.info(f"JWKS cached until {self._cache_expiry.isoformat()}")
-                    return self._jwks_cache
+                    return self._jwks_cache  # type: ignore[return-value]
         except aiohttp.ClientError as e:
             logger.error(f"Failed to fetch JWKS (network error): {e}")
             raise RuntimeError(f"JWKS fetch failed: {e}") from e
@@ -164,7 +164,7 @@ class EntraIdTokenVerifier(TokenVerifier):
             # Verify token with all checks enabled
             payload = jwt.decode(
                 token,
-                signing_key,
+                signing_key,  # type: ignore[arg-type]
                 algorithms=["RS256"],
                 audience=self.client_id,
                 issuer=self.issuer,

@@ -54,6 +54,10 @@ A minimal MCP server with three tools:
 └──────────────┘                           └──────────────────┘
 ```
 
+## Architecture Decision
+
+For details on why this architecture was chosen over alternatives (such as APIM + Azure Functions or APIM + Container Apps), see [ADR-001: MCP Server Hosting Architecture](adr/ADR-001-mcp-server-hosting-architecture.md).
+
 ## Next Steps
 
 Continue to [02-azure-setup.md](02-azure-setup.md) to configure your Azure AD app registration.

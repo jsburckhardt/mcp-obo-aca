@@ -161,6 +161,7 @@ pytest tests/ -v
 - [Running and Testing](src/docs/04-running-and-testing.md) - Usage guide
 - [Troubleshooting](src/docs/05-troubleshooting.md) - Common issues
 - [Infrastructure](infra/README.md) - Bicep templates documentation
+- [Architecture Decision Records](src/docs/adr/README.md) - Why this architecture was chosen
 
 ## Standards Compliance
 

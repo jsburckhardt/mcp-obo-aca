@@ -11,13 +11,11 @@ Tests validate:
 """
 
 import sys
-import time
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import jwt
 import pytest
 from fastmcp.server.auth import AccessToken
 
