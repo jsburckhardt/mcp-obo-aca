@@ -55,35 +55,7 @@ See [src/docs/02-azure-setup.md](src/docs/02-azure-setup.md) for detailed instru
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Azure Container Apps                          │
-│                                                                  │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │                    MCP Server                             │   │
-│  │                                                           │   │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐   │   │
-│  │  │   FastMCP   │  │   Token     │  │   OBO Flow      │   │   │
-│  │  │   Server    │  │   Verifier  │  │   (Graph API)   │   │   │
-│  │  └─────────────┘  └─────────────┘  └─────────────────┘   │   │
-│  └──────────────────────────────────────────────────────────┘   │
-│                              │                                   │
-│                    ┌─────────┴─────────┐                        │
-│                    │  Managed Identity  │                        │
-│                    │  (Secretless Auth) │                        │
-│                    └───────────────────┘                        │
-└─────────────────────────────────────────────────────────────────┘
-                               │
-              ┌────────────────┴────────────────┐
-              ▼                                 ▼
-    ┌──────────────────┐              ┌──────────────────┐
-    │   Azure AD       │              │  Microsoft Graph │
-    │   (Entra ID)     │              │       API        │
-    │                  │              │                  │
-    │  - Token Verify  │              │  - User Profile  │
-    │  - JWKS Endpoint │              │  - On-Behalf-Of  │
-    └──────────────────┘              └──────────────────┘
-```
+![Architecture Diagram](src/docs/architecture.png)
 
 ## Project Structure
 
