@@ -49,6 +49,9 @@ param containerPort int = 9000
 @description('The canonical resource server URL (set after first deployment with the Container App FQDN)')
 param resourceServerUrl string = ''
 
+@description('Whether the Container App resource already exists (set automatically by azd)')
+param demoMcpServerExists bool = false
+
 @description('Minimum number of replicas')
 param minReplicas int = 0
 
@@ -120,6 +123,15 @@ module containerAppsEnvironment './modules/container-apps-environment.bicep' = {
 }
 
 // Container App - Demo MCP Server
+// Fetch the current image if the Container App already exists (upsert pattern)
+module fetchContainerImage './modules/fetch-container-image.bicep' = {
+  name: 'fetch-container-image'
+  params: {
+    exists: demoMcpServerExists
+    name: containerAppName
+  }
+}
+
 module containerApp './modules/container-app.bicep' = {
   name: 'container-app'
   params: {
@@ -130,6 +142,7 @@ module containerApp './modules/container-app.bicep' = {
     containerRegistryLoginServer: containerRegistry.outputs.loginServer
     containerImageName: containerImageName
     containerImageTag: containerImageTag
+    fetchedImage: fetchContainerImage.outputs.?containers[?0].?image ?? ''
     containerPort: containerPort
     managedIdentityId: managedIdentity.outputs.id
     managedIdentityClientId: managedIdentity.outputs.clientId

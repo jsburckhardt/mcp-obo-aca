@@ -23,6 +23,9 @@
     "resourceServerUrl": {
       "value": "${RESOURCE_SERVER_URL=}"
     },
+    "demoMcpServerExists": {
+      "value": "${SERVICE_DEMO_MCP_SERVER_RESOURCE_EXISTS=false}"
+    },
     "tags": {
       "value": {
         "azd-env-name": "${AZURE_ENV_NAME}",
