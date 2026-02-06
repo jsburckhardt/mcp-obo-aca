@@ -21,7 +21,11 @@ param containerRegistryLoginServer string
 param containerImageName string
 
 @description('The container image tag')
+#disable-next-line no-unused-params
 param containerImageTag string
+
+@description('The fetched image from an existing Container App (empty string on first deploy)')
+param fetchedImage string = ''
 
 @description('The port the container listens on')
 param containerPort int = 9000
@@ -73,6 +77,41 @@ var secretEnvReferences = [for secret in secretEnvVars: {
 
 var allEnvVars = concat(envVars, secretEnvReferences)
 
+// On first deploy, no image exists in ACR yet. Use the fetched image from an
+// existing app if available, otherwise fall back to a public placeholder so
+// provisioning succeeds. `azd deploy` will replace this with the real image.
+var isPlaceholderImage = empty(fetchedImage)
+var containerImage = !isPlaceholderImage
+  ? fetchedImage
+  : 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+
+// Only configure probes when using the real image; the placeholder image
+// does not expose the same port/health endpoint.
+var containerProbes = isPlaceholderImage ? [] : [
+  {
+    type: 'Liveness'
+    httpGet: {
+      path: '/health'
+      port: containerPort
+    }
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+  }
+  {
+    type: 'Readiness'
+    httpGet: {
+      path: '/health'
+      port: containerPort
+    }
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  }
+]
+
 // =============================================================================
 // Resources
 // =============================================================================
@@ -116,36 +155,13 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           name: containerImageName
-          image: '${containerRegistryLoginServer}/${containerImageName}:${containerImageTag}'
+          image: containerImage
           resources: {
             cpu: json(containerCpuCores)
             memory: containerMemory
           }
           env: allEnvVars
-          probes: [
-            {
-              type: 'Liveness'
-              httpGet: {
-                path: '/health'
-                port: containerPort
-              }
-              initialDelaySeconds: 10
-              periodSeconds: 30
-              timeoutSeconds: 5
-              failureThreshold: 3
-            }
-            {
-              type: 'Readiness'
-              httpGet: {
-                path: '/health'
-                port: containerPort
-              }
-              initialDelaySeconds: 5
-              periodSeconds: 10
-              timeoutSeconds: 3
-              failureThreshold: 3
-            }
-          ]
+          probes: containerProbes
         }
       ]
       scale: {
