@@ -1,0 +1,16 @@
+# Environment files (may contain secrets or placeholder values that override Container App env vars)
+.env
+.env.*
+
+# Development files
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Documentation
+docs/
+
+# Tests
+tests/

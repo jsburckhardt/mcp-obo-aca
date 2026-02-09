@@ -191,7 +191,7 @@ module containerApp './modules/container-app.bicep' = {
       }
       {
         name: 'FEDERATED_CREDENTIAL_OID'
-        value: managedIdentity.outputs.principalId
+        value: managedIdentity.outputs.clientId
       }
       {
         name: 'SERVER_NAME'

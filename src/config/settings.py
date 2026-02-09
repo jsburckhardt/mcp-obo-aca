@@ -58,7 +58,7 @@ class MCPServerConfig(BaseSettings):
     federated_credential_oid: Optional[str] = Field(
         default=None,
         alias="FEDERATED_CREDENTIAL_OID",
-        description="Object (Principal) ID of the user-assigned managed identity for federated credential authentication (secretless OBO flow)",
+        description="Client ID of the user-assigned managed identity for federated credential authentication (secretless OBO flow). Note: ManagedIdentityCredential requires the MI client_id, not the principal/object ID.",
     )
 
     # OAuth 2.1 / RFC 9728 Protected Resource Metadata

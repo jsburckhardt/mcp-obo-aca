@@ -96,7 +96,8 @@ async def _get_graph_token_with_federated_credential(assertion_token: str) -> st
 
     try:
         # Create managed identity credential using the OID from config
-        # This is the Object (Principal) ID of the user-assigned managed identity
+        # This is the client ID of the user-assigned managed identity
+        # ManagedIdentityCredential requires the MI client_id (not principal/object ID)
         mi_credential = ManagedIdentityCredential(
             client_id=config.federated_credential_oid
         )
