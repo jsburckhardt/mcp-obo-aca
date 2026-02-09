@@ -371,7 +371,7 @@ If `/.well-known/oauth-protected-resource` returns incorrect values:
    ```bash
    # Check current value
    azd env get-values | grep CLIENT_ID
-   
+
    # Fix if wrong
    azd env set AZURE_CLIENT_ID "your-correct-client-id"
    azd provision

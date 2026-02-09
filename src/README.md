@@ -93,7 +93,7 @@ curl http://localhost:9000/.well-known/oauth-protected-resource
 | `TENANT_ID` | Azure AD tenant ID | When auth enabled |
 | `CLIENT_ID` | Application (client) ID | When auth enabled |
 | `CLIENT_SECRET` | Client secret for OBO | One of secret or FIC |
-| `FEDERATED_CREDENTIAL_OID` | Managed identity OID | One of secret or FIC |
+| `FEDERATED_CREDENTIAL_OID` | Managed identity client ID | One of secret or FIC |
 | `GRAPH_SCOPE` | Graph API scope | No (default: User.Read) |
 
 See [.env.example](.env.example) for all options.
