@@ -46,9 +46,6 @@ param enableAuth bool = true
 @description('The port the container listens on')
 param containerPort int = 9000
 
-@description('The canonical resource server URL (set after first deployment with the Container App FQDN)')
-param resourceServerUrl string = ''
-
 @description('Whether the Container App resource already exists (set automatically by azd)')
 param demoMcpServerExists bool = false
 
@@ -121,6 +118,11 @@ module containerAppsEnvironment './modules/container-apps-environment.bicep' = {
     logAnalyticsWorkspaceId: logAnalytics.outputs.id
   }
 }
+
+// Compute the resource server URL from the Container Apps Environment default domain.
+// This avoids the chicken-and-egg problem where the Container App FQDN isn't known
+// until after deployment. The FQDN follows the pattern: <appName>.<defaultDomain>
+var resourceServerUrl = 'https://${containerAppName}.${containerAppsEnvironment.outputs.defaultDomain}'
 
 // Container App - Demo MCP Server
 // Fetch the current image if the Container App already exists (upsert pattern)
