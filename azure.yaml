@@ -51,14 +51,14 @@ hooks:
     posix:
       run: |
         echo "🔍 Validating required environment variables..."
-        
+
         if [ -z "$AZURE_CLIENT_ID" ]; then
           echo "⚠️  Warning: AZURE_CLIENT_ID not set. You will need to configure it for authentication."
           echo "   See docs/02-azure-setup.md for Azure AD app registration instructions."
         else
           echo "✅ AZURE_CLIENT_ID is set"
         fi
-        
+
         echo ""
         echo "📝 Note: After deployment, you need to configure a federated credential"
         echo "   on your Azure AD app registration using the managed identity principal ID."
@@ -67,14 +67,14 @@ hooks:
     windows:
       run: |
         Write-Host "🔍 Validating required environment variables..."
-        
+
         if (-not $env:AZURE_CLIENT_ID) {
           Write-Host "⚠️  Warning: AZURE_CLIENT_ID not set. You will need to configure it for authentication."
           Write-Host "   See docs/02-azure-setup.md for Azure AD app registration instructions."
         } else {
           Write-Host "✅ AZURE_CLIENT_ID is set"
         }
-        
+
         Write-Host ""
         Write-Host "📝 Note: After deployment, you need to configure a federated credential"
         Write-Host "   on your Azure AD app registration using the managed identity principal ID."
@@ -90,7 +90,7 @@ hooks:
         Yellow='\033[1;33m'
         Cyan='\033[0;36m'
         NC='\033[0m'
-        
+
         echo ""
         echo "${Yellow}═══════════════════════════════════════════════════════════════${NC}"
         echo "${Green}✅ Infrastructure Provisioned Successfully${NC}"
@@ -145,7 +145,7 @@ hooks:
         Yellow='\033[1;33m'
         Cyan='\033[0;36m'
         NC='\033[0m'
-        
+
         echo ""
         echo "${Yellow}═══════════════════════════════════════════════════════════════${NC}"
         echo "${Green}🚀 Demo MCP Server Deployed Successfully${NC}"
@@ -153,17 +153,17 @@ hooks:
         echo ""
         echo "${Cyan}📍 Endpoints:${NC}"
         echo ""
-        echo "   ${Blue}MCP Endpoint:${NC}     https://${SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL}/mcp"
-        echo "   ${Blue}Health Check:${NC}     https://${SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL}/health"
-        echo "   ${Blue}OAuth Metadata:${NC}   https://${SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL}/.well-known/oauth-protected-resource"
+        echo "   ${Blue}MCP Endpoint:${NC}     https://${containerAppFqdn}/mcp"
+        echo "   ${Blue}Health Check:${NC}     https://${containerAppFqdn}/health"
+        echo "   ${Blue}OAuth Metadata:${NC}   https://${containerAppFqdn}/.well-known/oauth-protected-resource"
         echo ""
         echo "${Cyan}🧪 Test Commands:${NC}"
         echo ""
         echo "   # Health check"
-        echo "   curl https://${SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL}/health"
+        echo "   curl https://${containerAppFqdn}/health"
         echo ""
         echo "   # OAuth metadata"
-        echo "   curl https://${SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL}/.well-known/oauth-protected-resource"
+        echo "   curl https://${containerAppFqdn}/.well-known/oauth-protected-resource"
         echo ""
       shell: sh
       interactive: true
@@ -176,17 +176,17 @@ hooks:
         Write-Host ""
         Write-Host "📍 Endpoints:" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "   MCP Endpoint:     https://$env:SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL/mcp" -ForegroundColor Blue
-        Write-Host "   Health Check:     https://$env:SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL/health" -ForegroundColor Blue
-        Write-Host "   OAuth Metadata:   https://$env:SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL/.well-known/oauth-protected-resource" -ForegroundColor Blue
+        Write-Host "   MCP Endpoint:     https://$env:containerAppFqdn/mcp" -ForegroundColor Blue
+        Write-Host "   Health Check:     https://$env:containerAppFqdn/health" -ForegroundColor Blue
+        Write-Host "   OAuth Metadata:   https://$env:containerAppFqdn/.well-known/oauth-protected-resource" -ForegroundColor Blue
         Write-Host ""
         Write-Host "🧪 Test Commands:" -ForegroundColor Cyan
         Write-Host ""
         Write-Host "   # Health check"
-        Write-Host "   curl https://$env:SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL/health"
+        Write-Host "   curl https://$env:containerAppFqdn/health"
         Write-Host ""
         Write-Host "   # OAuth metadata"
-        Write-Host "   curl https://$env:SERVICE_DEMO_MCP_SERVER_ENDPOINT_URL/.well-known/oauth-protected-resource"
+        Write-Host "   curl https://$env:containerAppFqdn/.well-known/oauth-protected-resource"
         Write-Host ""
       shell: pwsh
       interactive: true

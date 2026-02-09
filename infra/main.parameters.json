@@ -20,9 +20,6 @@
     "enableAuth": {
       "value": "${ENABLE_AUTH=true}"
     },
-    "resourceServerUrl": {
-      "value": "${RESOURCE_SERVER_URL=}"
-    },
     "demoMcpServerExists": {
       "value": "${SERVICE_DEMO_MCP_SERVER_RESOURCE_EXISTS=false}"
     },
